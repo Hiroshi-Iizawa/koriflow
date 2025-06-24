@@ -3,7 +3,6 @@
 import { UseFormRegister, FieldErrors } from "react-hook-form"
 import { LayoutGrid } from "lucide-react"
 import { InputField, Section } from "../ui/form-fields"
-import { CompanyGroup } from "./company-group"
 import { ItemFormData } from "../../lib/validators/item"
 
 interface CommonSectionProps {
@@ -80,42 +79,6 @@ export function CommonSection({ register, errors, formValues, onChange }: Common
         </div>
       </Section>
 
-      {/* 企業情報 */}
-      <Section title="企業情報 (任意)">
-        <div className="space-y-6">
-          <CompanyGroup
-            side="製造者"
-            prefix="manufacturer"
-            values={{
-              name: formValues.manufacturerName || "",
-              address: formValues.manufacturerAddress || "",
-              phone: formValues.manufacturerPhone || ""
-            }}
-            errors={{
-              name: errors.manufacturerName?.message,
-              address: errors.manufacturerAddress?.message,
-              phone: errors.manufacturerPhone?.message
-            }}
-            onChange={onChange}
-          />
-          
-          <CompanyGroup
-            side="販売者"
-            prefix="seller"
-            values={{
-              name: formValues.sellerName || "",
-              address: formValues.sellerAddress || "",
-              phone: formValues.sellerPhone || ""
-            }}
-            errors={{
-              name: errors.sellerName?.message,
-              address: errors.sellerAddress?.message,
-              phone: errors.sellerPhone?.message
-            }}
-            onChange={onChange}
-          />
-        </div>
-      </Section>
     </>
   )
 }

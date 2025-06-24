@@ -1,0 +1,285 @@
+@import "@koriflow/ui/styles";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 245 251 255; /* kori-50 */
+    --foreground: 8 50 89; /* kori-900 */
+    --card: 255 255 255;
+    --card-foreground: 8 50 89;
+    --popover: 255 255 255;
+    --popover-foreground: 8 50 89;
+    --primary: 55 158 255; /* kori-500 */
+    --primary-foreground: 255 255 255;
+    --secondary: 232 244 255; /* kori-100 */
+    --secondary-foreground: 21 100 184; /* kori-700 */
+    --muted: 232 244 255;
+    --muted-foreground: 21 100 184;
+    --accent: 205 230 255; /* kori-200 */
+    --accent-foreground: 21 100 184;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    --border: 205 230 255;
+    --input: 205 230 255;
+    --ring: 159 209 255; /* kori-300 */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 8 50 89; /* kori-900 */
+    --foreground: 245 251 255; /* kori-50 */
+    --card: 14 74 138; /* kori-800 */
+    --card-foreground: 245 251 255;
+    --popover: 14 74 138;
+    --popover-foreground: 245 251 255;
+    --primary: 55 158 255;
+    --primary-foreground: 255 255 255;
+    --secondary: 21 100 184; /* kori-700 */
+    --secondary-foreground: 245 251 255;
+    --muted: 21 100 184;
+    --muted-foreground: 232 244 255;
+    --accent: 31 127 230; /* kori-600 */
+    --accent-foreground: 245 251 255;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    --border: 21 100 184;
+    --input: 21 100 184;
+    --ring: 106 184 255; /* kori-400 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  /* Remove browser default yellow outline */
+  *:focus {
+    outline: none !important;
+  }
+  
+  /* Global focus ring color - Koriflow Blue 600 */
+  *:focus-visible {
+    --tw-ring-color: rgb(18 99 180) !important; /* kori-600 */
+  }
+  
+  /* Remove webkit yellow highlight on autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: rgb(8 50 89) !important;
+  }
+  
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgb(14 74 138) inset !important;
+    box-shadow: 0 0 0 30px rgb(14 74 138) inset !important;
+    -webkit-text-fill-color: rgb(245 251 255) !important;
+  }
+  
+  html {
+    @apply bg-kori-50;
+    height: 100%;
+  }
+  
+  body {
+    @apply bg-background text-foreground min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    height: 100%;
+  }
+  
+  /* Next.js root elements */
+  #__next {
+    @apply min-h-full bg-background;
+  }
+
+  /* Koriflow Ice Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-kori-50;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-kori-300 hover:bg-kori-400 rounded-full;
+    transition: background-color 0.2s ease;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-kori-400;
+  }
+
+  /* Ice Crystal Loading Effect */
+  .ice-loader {
+    @apply w-8 h-8 border-4 border-kori-100 rounded-full animate-spin-cream;
+    border-top-color: theme('colors.kori.400');
+  }
+
+  /* Frosted Glass Effect */
+  .frosted-glass {
+    backdrop-filter: blur(8px);
+    @apply bg-white/80 border border-kori-200/50;
+  }
+
+  .dark .frosted-glass {
+    @apply bg-kori-900/80 border-kori-700/50;
+  }
+}
+
+/* Dark mode support for select dropdowns */
+@media (prefers-color-scheme: dark) {
+  .bg-kori-select-bg { 
+    background: rgba(14, 74, 138, 0.15); 
+  }
+  .text-kori-800 { 
+    color: #dbeafe; /* Light text on dark */
+  }
+  .hover\:bg-kori-select-hover:hover { 
+    background: #0e4a8a33; 
+  }
+  [data-state="checked"].bg-kori-select-active { 
+    background: #0e4a8a55; 
+  }
+}
+
+/* Cool & Crisp Allergen Checkbox Styles */
+.form-check {
+  @apply inline-flex items-center gap-2 cursor-pointer select-none 
+         px-3 py-2 rounded-lg hover:bg-kori-50 transition-all duration-200;
+}
+
+.form-check input[type="checkbox"] {
+  @apply h-5 w-5 shrink-0 appearance-none rounded border-2
+         border-gray-300 bg-white
+         checked:bg-kori-500 checked:border-kori-500
+         focus-visible:ring-2 focus-visible:ring-kori-400 focus-visible:ring-offset-2
+         transition-all duration-200 cursor-pointer;
+  background-image: none;
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.form-check input[type="checkbox"]:checked {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+}
+
+.form-check span {
+  @apply text-gray-600 transition-colors duration-200 text-sm;
+}
+
+.form-check:hover span {
+  @apply text-kori-700;
+}
+
+.form-check input:checked + span {
+  @apply text-kori-800 font-medium;
+}
+
+/* Dark mode support for checkboxes */
+@media (prefers-color-scheme: dark) {
+  .form-check input[type="checkbox"] {
+    @apply border-kori-400 bg-kori-900/20;
+  }
+  
+  .form-check input[type="checkbox"]:checked {
+    @apply bg-kori-500 border-kori-500;
+  }
+  
+  .form-check span {
+    @apply text-gray-300;
+  }
+  
+  .form-check:hover span {
+    @apply text-kori-300;
+  }
+  
+  .form-check input:checked + span {
+    @apply text-kori-200;
+  }
+}
+
+/* Validation error styles */
+.input-error {
+  @apply border-red-500 focus:border-red-500 focus:ring-red-200;
+  animation: shake 0.3s ease-in-out;
+}
+
+.input-error::placeholder {
+  @apply text-red-300;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Prevent yellow background on drag */
+[draggable="true"] {
+  -webkit-user-drag: element;
+  user-select: none;
+}
+
+/* Remove drag ghost image yellow background */
+[draggable="true"]:active {
+  background-color: transparent !important;
+}
+
+/* Ensure dragged cards maintain their style */
+.dragging {
+  opacity: 0.5;
+  cursor: grabbing !important;
+}
+
+/* Prevent overlap in card headers */
+.card-header-with-action {
+  @apply flex items-center justify-between gap-4;
+}
+
+.card-header-with-action > *:first-child {
+  @apply flex-1 min-w-0;
+}
+
+.card-header-with-action > *:last-child {
+  @apply flex-shrink-0;
+}
+
+/* Thin scrollbar for kanban columns */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.kori.300') theme('colors.kori.50');
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  @apply bg-kori-50 rounded-full;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-kori-300 rounded-full;
+}
+
+/* Hide horizontal scrollbar but keep functionality */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

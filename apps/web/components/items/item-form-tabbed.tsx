@@ -8,6 +8,7 @@ import { itemSchema, ItemFormData } from "../../lib/validators/item"
 import { CommonSection } from "./common-section"
 import { FinishedGoodsSection } from "./finished-goods-section"
 import { RawMaterialSection } from "./raw-material-section"
+import { BundleSection } from "./bundle-section"
 import { cn } from "@lib/utils"
 
 interface ItemFormTabbedProps {
@@ -64,6 +65,7 @@ export function ItemFormTabbed({ item, onSubmit, onCancel, mode = 'create' }: It
       allergenGelatin: false,
       allergenSeafood: false,
       allergenAlmond: false,
+      components: [],
       ...item
     }
   })
@@ -73,7 +75,7 @@ export function ItemFormTabbed({ item, onSubmit, onCancel, mode = 'create' }: It
   // タブ切り替え時にtypeフィールドを更新
   const handleTabChange = (value: string) => {
     setActiveTab(value)
-    setValue("type", value as "FIN" | "RAW" | "WIPNG", { shouldDirty: true })
+    setValue("type", value as "FIN" | "RAW" | "WIPNG" | "BUNDLE", { shouldDirty: true })
   }
 
   // キーボードショートカット
@@ -135,7 +137,7 @@ export function ItemFormTabbed({ item, onSubmit, onCancel, mode = 'create' }: It
           
           {/* タブナビゲーション */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 max-w-[400px] bg-kori-50/50 mb-8">
+            <TabsList className="grid w-full grid-cols-3 max-w-[600px] bg-kori-50/50 mb-8">
               <TabsTrigger 
                 value="FIN" 
                 className={cn(
@@ -153,6 +155,15 @@ export function ItemFormTabbed({ item, onSubmit, onCancel, mode = 'create' }: It
                 )}
               >
                 🥛 原材料
+              </TabsTrigger>
+              <TabsTrigger 
+                value="BUNDLE"
+                className={cn(
+                  "data-[state=active]:bg-violet-500 data-[state=active]:text-white",
+                  "hover:bg-violet-50 transition-colors"
+                )}
+              >
+                📦 セット商品
               </TabsTrigger>
             </TabsList>
 
@@ -189,6 +200,23 @@ export function ItemFormTabbed({ item, onSubmit, onCancel, mode = 'create' }: It
                 onChange={handleFieldChange}
               />
             </TabsContent>
+
+            {/* セット商品フォーム */}
+            <TabsContent value="BUNDLE" className="space-y-6">
+              <CommonSection 
+                register={register}
+                errors={errors}
+                formValues={formValues}
+                onChange={handleFieldChange}
+              />
+              
+              <BundleSection
+                register={register}
+                errors={errors}
+                formValues={formValues}
+                onChange={handleFieldChange}
+              />
+            </TabsContent>
           </Tabs>
 
           {/* フッターアクション */}
@@ -210,7 +238,9 @@ export function ItemFormTabbed({ item, onSubmit, onCancel, mode = 'create' }: It
                 "text-white transition-colors",
                 activeTab === "FIN" 
                   ? "bg-blue-500 hover:bg-blue-400" 
-                  : "bg-teal-500 hover:bg-teal-400"
+                  : activeTab === "RAW"
+                  ? "bg-teal-500 hover:bg-teal-400"
+                  : "bg-violet-500 hover:bg-violet-400"
               )}
             >
               {isSubmitting ? "保存中..." : (mode === 'create' ? "作成" : "更新")}

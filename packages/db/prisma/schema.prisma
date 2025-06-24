@@ -1,0 +1,440 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      UserRole @default(WAREHOUSE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  WAREHOUSE
+  PRODUCTION
+  MANAGER
+  SALES
+  PURCHASE
+  ADMIN
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Item {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  type      ItemType
+  pack      PackSize @default(CUP) // パックサイズ
+  
+  // 基本商品情報
+  janCode   String?  @unique // JANコード
+  makerCode String?  // メーカーコード
+  brandName String?  // ブランド名
+  makerName String?  // メーカー名
+  
+  // 商品仕様
+  contentVolume String?   // 内容量 (例: "120ml")
+  packageSize   String?   // 商品規格 (例: "120ml x 12個 x 6箱")
+  storageMethod String?   // 保存方法
+  originCountry String?   // 原産国
+  
+  // 栄養成分情報 (100g当たり)
+  energyKcal      Decimal? @db.Decimal(10, 2) // エネルギー(kcal)
+  proteinG        Decimal? @db.Decimal(10, 2) // たんぱく質(g)
+  fatG            Decimal? @db.Decimal(10, 2) // 脂質(g)
+  carbohydrateG   Decimal? @db.Decimal(10, 2) // 炭水化物(g)
+  sodiumMg        Decimal? @db.Decimal(10, 2) // 食塩相当量(g)
+  
+  // アレルゲン情報（特定原材料8品目）
+  allergenShrimp    Boolean @default(false) // えび
+  allergenCrab      Boolean @default(false) // かに
+  allergenWheat     Boolean @default(false) // 小麦
+  allergenBuckwheat Boolean @default(false) // そば
+  allergenEgg       Boolean @default(false) // 卵
+  allergenMilk      Boolean @default(false) // 乳
+  allergenPeanut    Boolean @default(false) // 落花生
+  allergenWalnut    Boolean @default(false) // くるみ
+  
+  // アレルゲン情報（特定原材料に準ずるもの20品目）
+  allergenAbalone   Boolean @default(false) // あわび
+  allergenSquid     Boolean @default(false) // いか
+  allergenSalmonRoe Boolean @default(false) // いくら
+  allergenOrange    Boolean @default(false) // オレンジ
+  allergenCashew    Boolean @default(false) // カシューナッツ
+  allergenKiwi      Boolean @default(false) // キウイフルーツ
+  allergenBeef      Boolean @default(false) // 牛肉
+  allergenSesame    Boolean @default(false) // ごま
+  allergenSalmon    Boolean @default(false) // さけ
+  allergenMackerel  Boolean @default(false) // さば
+  allergenSoybean   Boolean @default(false) // 大豆
+  allergenChicken   Boolean @default(false) // 鶏肉
+  allergenBanana    Boolean @default(false) // バナナ
+  allergenPork      Boolean @default(false) // 豚肉
+  allergenMatsutake Boolean @default(false) // まつたけ
+  allergenPeach     Boolean @default(false) // もも
+  allergenYam       Boolean @default(false) // やまいも
+  allergenApple     Boolean @default(false) // りんご
+  allergenGelatin   Boolean @default(false) // ゼラチン
+  allergenSeafood   Boolean @default(false) // 魚介類
+  allergenAlmond    Boolean @default(false) // アーモンド
+  
+  // 企業情報
+  manufacturerName    String? // 製造者名
+  manufacturerAddress String? // 製造者住所
+  manufacturerPhone   String? // 製造者電話番号
+  sellerName          String? // 販売者名
+  sellerAddress       String? // 販売者住所
+  sellerPhone         String? // 販売者電話番号
+  
+  // その他
+  usageNotes     String? // 使用上の注意
+  productFeature String? @db.Text // 商品特徴・説明文
+  imageUrl       String? // 商品画像URL (FIN・BUNDLE用)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lots      ItemLot[]
+  productRecipes Recipe[] @relation("ProductRecipe")
+  materialRecipes RecipeItem[] @relation("MaterialRecipe")
+  salesLines SalesLine[]
+  
+  // Bundle relations
+  bundleComponents BundleComponent[] @relation("BundleParent")
+  componentOf BundleComponent[] @relation("BundleChild")
+  channelListings ChannelListing[]
+
+  @@map("items")
+}
+
+enum ItemType {
+  FIN   // Finished goods
+  RAW   // Raw materials
+  WIPNG // Work in progress / Non-conforming
+  BUNDLE // Bundle/Kit products
+}
+
+enum PackSize {
+  CUP    // Cup size
+  BULK2  // 2L Bulk
+  BULK4  // 4L Bulk
+}
+
+model ItemLot {
+  id         String    @id @default(cuid())
+  lotCode    String    @unique
+  itemId     String
+  item       Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  qty        Decimal   @db.Decimal(10, 3)
+  expiryDate DateTime?
+  prodDate   DateTime?
+  batchNo    String?
+  locationId String?
+  location   InventoryLocation? @relation(fields: [locationId], references: [id])
+  moves      InventoryMove[]
+  allocations Allocation[]
+  createdAt  DateTime  @default(now())
+
+  @@map("item_lots")
+}
+
+model InventoryLocation {
+  id   String    @id @default(uuid())
+  code String    @unique
+  name String
+  lots ItemLot[]
+
+  @@map("inventory_locations")
+}
+
+model InventoryMove {
+  id       String     @id @default(cuid())
+  lotId    String
+  lot      ItemLot    @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  deltaQty Decimal    @db.Decimal(10, 3)
+  reason   MoveReason
+  ref      String?
+  at       DateTime   @default(now())
+
+  @@map("inventory_moves")
+}
+
+enum MoveReason {
+  RECEIVE
+  ISSUE
+  ADJUST
+  CONSUME
+  PRODUCE
+}
+
+model Partner {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  name        String
+  kind        PartnerKind
+  phone       String?
+  email       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  addresses   Address[]
+  salesOrders SalesOrder[]
+  purchaseOrders PurchaseOrder[]
+
+  @@map("partners")
+}
+
+enum PartnerKind {
+  CUSTOMER
+  VENDOR
+  BOTH
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  partnerId   String
+  partner     Partner  @relation(fields:[partnerId], references:[id], onDelete: Cascade)
+  label       String   // 例: 本社 / ○○物流倉庫
+  zip         String
+  prefecture  String
+  city        String
+  line1       String
+  line2       String?
+  contact     String?
+  phone       String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  salesOrders SalesOrder[]
+  deliveryNotes DeliveryNote[]
+
+  @@map("addresses")
+}
+
+model SalesOrder {
+  id        String     @id @default(cuid())
+  soNo      String     @unique
+  partnerId String
+  partner   Partner    @relation(fields: [partnerId], references: [id])
+  shipToId  String?
+  shipTo    Address?   @relation(fields: [shipToId], references: [id])
+  status    SOStatus   @default(DRAFT)
+  orderedAt DateTime   @default(now())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  lines     SalesLine[]
+  deliveryNotes DeliveryNote[]
+
+  @@map("sales_orders")
+}
+
+model SalesLine {
+  id        String   @id @default(cuid())
+  soId      String
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+  qty       Decimal  @db.Decimal(10, 3)
+  uom       String   @default("EA")
+  so        SalesOrder @relation(fields: [soId], references: [id], onDelete: Cascade)
+  allocations Allocation[]
+  createdAt DateTime @default(now())
+
+  @@map("sales_lines")
+}
+
+model Allocation {
+  id        String   @id @default(cuid())
+  soLineId  String
+  lotId     String
+  qty       Decimal  @db.Decimal(10, 3)
+  status    AllocationStatus @default(PROVISIONAL)
+  soLine    SalesLine @relation(fields: [soLineId], references: [id], onDelete: Cascade)
+  lot       ItemLot   @relation(fields: [lotId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@map("allocations")
+}
+
+enum SOStatus {
+  DRAFT
+  CONFIRMED
+  PICKED
+  SHIPPED
+  CLOSED
+  CANCELLED
+}
+
+enum AllocationStatus {
+  PROVISIONAL
+  COMMITTED
+}
+
+model DeliveryNote {
+  id        String     @id @default(cuid())
+  dnNo      String     @unique
+  soId      String
+  so        SalesOrder @relation(fields: [soId], references: [id])
+  shipToId  String?
+  shipTo    Address?   @relation(fields: [shipToId], references: [id])
+  issuedAt  DateTime   @default(now())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("delivery_notes")
+}
+
+model PurchaseOrder {
+  id        String   @id @default(cuid())
+  orderNo   String   @unique
+  partnerId String
+  partner   Partner  @relation(fields: [partnerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("purchase_orders")
+}
+
+model ProductionRun {
+  id       String   @id @default(cuid())
+  runDate  DateTime
+  runNo    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([runDate, runNo])
+  @@map("production_runs")
+}
+
+model Recipe {
+  id          String       @id @default(cuid())
+  productId   String
+  product     Item         @relation("ProductRecipe", fields: [productId], references: [id])
+  yieldPct    Decimal?     @db.Decimal(5, 2)
+  version     Int          @default(1)
+  isActive    Boolean      @default(true)
+  items       RecipeItem[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([productId, version])
+  @@map("recipes")
+}
+
+model RecipeItem {
+  id         String   @id @default(cuid())
+  recipeId   String
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  materialId String
+  material   Item     @relation("MaterialRecipe", fields: [materialId], references: [id])
+  qty        Decimal  @db.Decimal(10, 3)
+  scrapPct   Decimal? @db.Decimal(5, 2)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([recipeId, materialId])
+  @@map("recipe_items")
+}
+
+model BundleComponent {
+  id          String  @id @default(cuid())
+  bundleId    String
+  componentId String
+  qty         Decimal @db.Decimal(10, 3)
+  bundle      Item    @relation("BundleParent", fields: [bundleId], references: [id], onDelete: Cascade)
+  component   Item    @relation("BundleChild", fields: [componentId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([bundleId, componentId])
+  @@map("bundle_components")
+}
+
+model Channel {
+  id       String      @id @default(cuid())
+  code     String      @unique
+  name     String
+  kind     ChannelKind
+  endpoint String?     // API URL or FTP path
+  apiKey   String?     // secret
+  isActive Boolean     @default(true)
+  mappings ChannelListing[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("channels")
+}
+
+model ChannelListing {
+  id          String   @id @default(cuid())
+  channelId   String
+  itemId      String
+  externalSku String   // Shopify Product ID, etc.
+  price       Decimal? @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  channel     Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  item        Item     @relation(fields: [itemId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([channelId, externalSku])
+  @@map("channel_listings")
+}
+
+enum ChannelKind {
+  SHOPIFY
+  EC_CATALOG      // 例: イオンギフト
+  WHOLESALE
+  POS
+}

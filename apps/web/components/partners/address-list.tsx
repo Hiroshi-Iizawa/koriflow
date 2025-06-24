@@ -91,24 +91,23 @@ export function AddressList({ partnerId, addresses, className }: AddressListProp
         <Card 
           key={address.id} 
           className={cn(
-            "relative border-kori-200 hover:shadow-sm transition-shadow",
+            "border-kori-200 hover:shadow-sm transition-shadow",
             address.isDefault && "border-kori-400 bg-kori-50/30"
           )}
         >
-          {address.isDefault && (
-            <Badge 
-              className="absolute top-3 right-3 bg-kori-100 text-kori-700 border-kori-300 text-xs"
-            >
-              Default
-            </Badge>
-          )}
-          
           <CardContent className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2 flex-1 pr-4">
+            <div className="flex items-start gap-4">
+              <div className="space-y-2 flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-kori-600" />
-                  <span className="font-medium text-kori-800">{address.label}</span>
+                  <MapPin className="h-4 w-4 text-kori-600 flex-shrink-0" />
+                  <span className="font-medium text-kori-800 truncate">{address.label}</span>
+                  {address.isDefault && (
+                    <Badge 
+                      className="bg-kori-100 text-kori-700 border-kori-300 text-xs ml-2"
+                    >
+                      Default
+                    </Badge>
+                  )}
                 </div>
                 
                 <div className="ml-6 text-sm text-kori-700 space-y-1">
@@ -124,7 +123,7 @@ export function AddressList({ partnerId, addresses, className }: AddressListProp
                 </div>
               </div>
               
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 flex-shrink-0">
                 {!address.isDefault && (
                   <Button
                     variant="ghost"

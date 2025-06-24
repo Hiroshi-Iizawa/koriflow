@@ -12,13 +12,6 @@ const commonFields = {
   brandName: z.string().optional().nullable(),
   makerName: z.string().optional().nullable(),
   
-  // 企業情報（任意）
-  manufacturerName: z.string().optional().nullable(),
-  manufacturerAddress: z.string().optional().nullable(),
-  manufacturerPhone: z.string().optional().nullable(),
-  sellerName: z.string().optional().nullable(),
-  sellerAddress: z.string().optional().nullable(),
-  sellerPhone: z.string().optional().nullable(),
   
   // その他（任意）
   usageNotes: z.string().optional().nullable(),
@@ -79,6 +72,7 @@ export const itemSchema = z.discriminatedUnion("type", [
     }).default("CUP"),
     
     // 完成品専用フィールド
+    imageUrl: z.string().optional().nullable(),
     contentVolume: z.string().optional().nullable(),
     packageSize: z.string().optional().nullable(),
     storageMethod: z.string().optional().nullable(),
@@ -116,6 +110,23 @@ export const itemSchema = z.discriminatedUnion("type", [
       required_error: "品質ステータスを選択してください",
     }).optional().nullable(),
     storageCondition: z.string().optional().nullable(),
+    
+    ...commonFields,
+  }),
+  
+  // セット商品 (BUNDLE) Schema
+  z.object({
+    type: z.literal("BUNDLE"),
+    
+    // BUNDLE専用フィールド
+    imageUrl: z.string().optional().nullable(),
+    productFeature: z.string().optional().nullable(),
+    
+    // セット構成（バリデーションは別途API側で実装）
+    components: z.array(z.object({
+      itemId: z.string().min(1, "アイテムIDは必須です"),
+      qty: z.number().min(0, "数量は0以上である必要があります"),
+    })).optional().default([]),
     
     ...commonFields,
   }),

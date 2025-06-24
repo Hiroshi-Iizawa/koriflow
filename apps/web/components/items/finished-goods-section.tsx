@@ -1,10 +1,11 @@
 'use client'
 
 import { UseFormRegister, FieldErrors } from "react-hook-form"
-import { Package, Shield, Utensils, FileText } from "lucide-react"
+import { Package, Shield, Utensils, FileText, Image } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@koriflow/ui"
 import { InputField, SelectField, TextareaField } from "../ui/form-fields"
 import { AllergenGrid } from "../allergen-grid"
+import { ImageUpload } from "../ui/image-upload"
 import { ItemFormData } from "../../lib/validators/item"
 
 interface FinishedGoodsSectionProps {
@@ -32,6 +33,23 @@ export function FinishedGoodsSection({ register, errors, formValues, onChange }:
   return (
     <Accordion type="multiple" defaultValue={['allergen']} className="space-y-4 focus:outline-none focus-within:outline-none mt-6">
       
+      {/* 商品画像 */}
+      <AccordionItem value="image" className="border border-blue-200 rounded-lg focus:outline-none">
+        <AccordionTrigger className="px-4 py-3 hover:no-underline focus:outline-none">
+          <div className="flex items-center gap-2 text-blue-700 font-semibold">
+            <Image className="h-5 w-5 text-blue-600" />
+            商品画像
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-4 pb-4 pt-2">
+          <ImageUpload
+            value={formValues.imageUrl as string}
+            onChange={(value) => onChange("imageUrl", value || "")}
+            placeholder="商品画像をアップロード"
+          />
+        </AccordionContent>
+      </AccordionItem>
+
       {/* パッケージ情報 */}
       <AccordionItem value="package" className="border border-blue-200 rounded-lg focus:outline-none">
         <AccordionTrigger className="px-4 py-3 hover:no-underline focus:outline-none">

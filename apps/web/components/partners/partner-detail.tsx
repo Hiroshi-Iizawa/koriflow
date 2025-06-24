@@ -135,7 +135,7 @@ export function PartnerDetail({ partner }: PartnerDetailProps) {
         {/* 概要カード (65%) + 住所リスト (35%) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 概要カード */}
-          <Card className="lg:col-span-2 bg-surface border border-surface rounded-lg shadow-sm">
+          <Card className="lg:col-span-2 bg-white border border-kori-200 rounded-lg shadow-sm">
             <CardHeader className="bg-kori-50/30 border-b border-kori-100">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold text-kori-800">
                 <Building2 className="h-5 w-5 text-kori-600" />
@@ -177,7 +177,7 @@ export function PartnerDetail({ partner }: PartnerDetailProps) {
           </Card>
 
           {/* 住所リスト */}
-          <Card className="bg-surface border border-surface rounded-lg shadow-sm">
+          <Card className="bg-white border border-kori-200 rounded-lg shadow-sm">
             <CardHeader className="bg-kori-50/30 border-b border-kori-100">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold text-kori-800">
                 📍 住所
