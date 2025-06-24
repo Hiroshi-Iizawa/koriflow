@@ -241,7 +241,7 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
           </Section>
 
           {/* アコーディオンセクション */}
-          <Accordion type="multiple" defaultValue={['allergen']} className="space-y-4 focus:outline-none focus-within:outline-none">
+          <Accordion type="multiple" defaultValue={['allergen']} className="space-y-4 focus:outline-none focus-within:outline-none mt-6">
             
             {/* ② 仕様 & 栄養 */}
             <AccordionItem value="spec" className="border border-kori-200 rounded-lg focus:outline-none">
@@ -251,7 +251,7 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
                   商品仕様・栄養成分 (任意)
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
+              <AccordionContent className="px-4 pb-4 pt-2">
                 <div className="grid grid-cols-12 gap-4">
                   <InputField
                     id="contentVolume"
@@ -318,7 +318,7 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
                   アレルゲン情報
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
+              <AccordionContent className="px-4 pb-4 pt-2">
                 <AllergenGrid register={register} />
               </AccordionContent>
             </AccordionItem>
@@ -331,7 +331,7 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
                   企業情報 (任意)
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 space-y-6">
+              <AccordionContent className="px-4 pb-4 pt-2 space-y-6">
                 <CompanyGroup
                   side="製造者"
                   prefix="maker"
@@ -374,7 +374,7 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
                   その他
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
+              <AccordionContent className="px-4 pb-4 pt-2">
                 <TextareaField
                   id="usageNote"
                   label="使用上の注意"
