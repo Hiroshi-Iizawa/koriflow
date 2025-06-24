@@ -5,7 +5,7 @@ import { Building2, MapPin, Phone } from "lucide-react"
 
 interface CompanyGroupProps {
   side: "製造者" | "販売者"
-  prefix: "maker" | "seller"
+  prefix: "maker" | "seller" | "manufacturer"
   values: {
     name?: string
     address?: string
