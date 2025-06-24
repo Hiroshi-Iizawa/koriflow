@@ -1,0 +1,181 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: ap-northeast-1
+  NODE_VERSION: '22'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build packages
+        run: |
+          pnpm --filter db build
+          pnpm --filter ui build
+          
+      - name: Generate Prisma client
+        run: pnpm --filter db generate
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
+          
+      - name: Run type checking
+        run: pnpm --filter web type-check
+        
+      - name: Run tests
+        run: pnpm test
+        
+      - name: Build application
+        run: pnpm --filter web build
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
+          NEXTAUTH_SECRET: "test-secret-for-build"
+          NEXTAUTH_URL: "http://localhost:3000"
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build packages
+        run: |
+          pnpm --filter db build
+          pnpm --filter ui build
+          
+      - name: Generate Prisma client
+        run: pnpm --filter db generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          
+      - name: Build application
+        run: pnpm --filter web build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          
+      - name: Create deployment package
+        run: |
+          mkdir -p deployment
+          cp -r apps/web/.next deployment/
+          cp -r apps/web/public deployment/
+          cp apps/web/package.json deployment/
+          cp -r node_modules deployment/
+          cp -r packages deployment/
+          
+          # Create ecosystem.config.js for PM2
+          cat > deployment/ecosystem.config.js << 'EOF'
+          module.exports = {
+            apps: [{
+              name: 'koriflow',
+              script: 'apps/web/server.js',
+              cwd: '/var/www/koriflow',
+              instances: 'max',
+              exec_mode: 'cluster',
+              env: {
+                NODE_ENV: 'production',
+                PORT: 3000
+              }
+            }]
+          }
+          EOF
+          
+          # Create appspec.yml for CodeDeploy
+          cat > deployment/appspec.yml << 'EOF'
+          version: 0.0
+          os: linux
+          files:
+            - source: /
+              destination: /var/www/koriflow
+          hooks:
+            BeforeInstall:
+              - location: scripts/stop_application.sh
+                timeout: 300
+            ApplicationStart:
+              - location: scripts/start_application.sh
+                timeout: 300
+            ApplicationStop:
+              - location: scripts/stop_application.sh
+                timeout: 300
+          EOF
+          
+          # Create deployment scripts
+          mkdir -p deployment/scripts
+          
+          cat > deployment/scripts/stop_application.sh << 'EOF'
+          #!/bin/bash
+          pm2 stop koriflow || true
+          pm2 delete koriflow || true
+          EOF
+          
+          cat > deployment/scripts/start_application.sh << 'EOF'
+          #!/bin/bash
+          cd /var/www/koriflow
+          pm2 start ecosystem.config.js
+          pm2 save
+          pm2 startup systemd -u ec2-user --hp /home/ec2-user
+          EOF
+          
+          chmod +x deployment/scripts/*.sh
+          
+      - name: Deploy to EC2
+        run: |
+          # Create ZIP for CodeDeploy
+          cd deployment
+          zip -r ../koriflow-deployment.zip .
+          cd ..
+          
+          # Upload to S3 and deploy via CodeDeploy
+          aws s3 cp koriflow-deployment.zip s3://${{ secrets.S3_BUCKET }}/deployments/
+          
+          aws deploy create-deployment \
+            --application-name koriflow-app \
+            --deployment-group-name koriflow-deployment-group \
+            --s3-location bucket=${{ secrets.S3_BUCKET }},key=deployments/koriflow-deployment.zip,bundleType=zip \
+            --description "Deployment from GitHub Actions - ${{ github.sha }}"

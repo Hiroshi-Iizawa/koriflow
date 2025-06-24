@@ -7,7 +7,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start",
+    "start": "node server.js",
     "test": "vitest",
     "type-check": "tsc --noEmit"
   },

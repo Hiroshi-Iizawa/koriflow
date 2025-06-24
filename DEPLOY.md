@@ -2,62 +2,66 @@
 
 ## デプロイメント構成
 
-- **Frontend**: Vercel (Next.js 15)
-- **Database**: Neon (PostgreSQL)
-- **Cache**: Upstash Redis
-- **CI/CD**: GitHub Actions
+- **Application**: AWS EC2 (Tokyo ap-northeast-1)
+- **Database**: AWS RDS PostgreSQL (Tokyo ap-northeast-1)
+- **Load Balancer**: AWS ALB
+- **CI/CD**: GitHub Actions + AWS CodeDeploy
 
 ## 📋 デプロイメント手順
 
-### 1. Neon Database セットアップ
+### 1. AWS インフラストラクチャ作成
 
 ```bash
-# 1. Neon Console (https://console.neon.tech) でプロジェクト作成
-# 2. DATABASE_URLをコピー
-# 3. Branchingを有効化 (main/preview/development)
+# 1. VPC, Subnets, Security Groups作成
+# 2. RDS PostgreSQL インスタンス作成 (ap-northeast-1)
+# 3. EC2 インスタンス作成 (Amazon Linux 2)
+# 4. Application Load Balancer作成
+# 5. Route53 ホストゾーン設定
 ```
 
-### 2. Upstash Redis セットアップ
+### 2. EC2 セットアップ
 
 ```bash
-# 1. Upstash Console (https://console.upstash.com) でデータベース作成
-# 2. Region: Asia Pacific (Tokyo)
-# 3. REDIS_URL と REST credentials をコピー
+# Node.js 22 + pnpm + PM2 インストール
+sudo yum update -y
+curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+sudo yum install -y nodejs
+sudo npm install -g pnpm pm2
+
+# CodeDeploy Agent インストール
+sudo yum install -y ruby wget
+wget https://aws-codedeploy-ap-northeast-1.s3.ap-northeast-1.amazonaws.com/latest/install
+chmod +x ./install
+sudo ./install auto
 ```
 
-### 3. Vercel プロジェクト作成
+### 3. RDS セットアップ
 
 ```bash
-# 1. Vercel CLI インストール
-npm i -g vercel
-
-# 2. プロジェクトの初期化
-vercel
-
-# 3. 環境変数設定
-vercel env add DATABASE_URL production
-vercel env add NEXTAUTH_SECRET production
-vercel env add REDIS_URL production
-vercel env add UPSTASH_REDIS_REST_URL production
-vercel env add UPSTASH_REDIS_REST_TOKEN production
+# 1. RDS PostgreSQL 15 インスタンス作成
+# 2. セキュリティグループ: EC2からの5432ポートアクセス許可
+# 3. DATABASE_URL取得
 ```
 
 ### 4. GitHub Secrets 設定
 
-リポジトリの Settings → Secrets で以下を設定：
-
 ```
-VERCEL_TOKEN=<vercel_token>
-VERCEL_ORG_ID=<org_id>
-VERCEL_PROJECT_ID=<project_id>
+AWS_ACCESS_KEY_ID=<access_key>
+AWS_SECRET_ACCESS_KEY=<secret_key>
+AWS_REGION=ap-northeast-1
+EC2_HOST=<ec2_public_ip>
+DATABASE_URL=<rds_connection_string>
+NEXTAUTH_SECRET=<32_char_secret>
 ```
 
-### 5. データベースマイグレーション
+### 5. アプリケーションデプロイ
 
 ```bash
-# Production環境でのマイグレーション
-DATABASE_URL="<neon_production_url>" pnpm db:push
-DATABASE_URL="<neon_production_url>" pnpm db:seed
+# GitHub Actions で自動デプロイ
+# - EC2 に SSH 接続
+# - アプリケーション更新
+# - PM2 で再起動
+# - ヘルスチェック
 ```
 
 ## 🔧 環境別設定
