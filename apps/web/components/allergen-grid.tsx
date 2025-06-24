@@ -62,7 +62,7 @@ export function AllergenGrid({ register }: AllergenGridProps) {
               <input
                 id={key}
                 type="checkbox"
-                className="w-4 h-4 rounded border-kori-300 text-kori-600 focus:ring-kori-400 focus:ring-2"
+                className="w-4 h-4 rounded border-kori-300 text-kori-600 focus:ring-0 focus:outline-none"
                 {...register(key)}
               />
               <span>{label}</span>
@@ -87,7 +87,7 @@ export function AllergenGrid({ register }: AllergenGridProps) {
               <input
                 id={key}
                 type="checkbox"
-                className="w-4 h-4 rounded border-kori-300 text-kori-600 focus:ring-kori-400 focus:ring-2"
+                className="w-4 h-4 rounded border-kori-300 text-kori-600 focus:ring-0 focus:outline-none"
                 {...register(key)}
               />
               <span>{label}</span>

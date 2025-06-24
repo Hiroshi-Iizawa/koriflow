@@ -56,7 +56,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             type={type}
             placeholder={placeholder}
             className={cn(
-              "w-full h-10 border-kori-300 focus:ring-2 focus:ring-kori-400 focus:border-kori-400",
+              "w-full h-10 border-kori-300 focus:ring-0 focus:border-kori-400 focus:outline-none",
               "dark:bg-kori-900/40 dark:border-kori-700",
               icon && "pl-10",
               unit && "pr-12",
@@ -95,7 +95,7 @@ export const SelectField = forwardRef<HTMLButtonElement, SelectFieldProps>(
             ref={ref}
             id={id}
             className={cn(
-              "w-full h-10 border-kori-300 focus:ring-2 focus:ring-kori-400 focus:border-kori-400",
+              "w-full h-10 border-kori-300 focus:ring-0 focus:border-kori-400 focus:outline-none",
               "dark:bg-kori-900/40 dark:border-kori-700",
               error && "border-red-500"
             )}
@@ -136,7 +136,7 @@ export const TextareaField = forwardRef<HTMLTextAreaElement, TextareaFieldProps>
           rows={rows}
           placeholder={placeholder}
           className={cn(
-            "w-full border-kori-300 focus:ring-2 focus:ring-kori-400 focus:border-kori-400 resize-none",
+            "w-full border-kori-300 focus:ring-0 focus:border-kori-400 focus:outline-none resize-none",
             "dark:bg-kori-900/40 dark:border-kori-700",
             error && "border-red-500"
           )}
