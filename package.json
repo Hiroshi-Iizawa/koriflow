@@ -9,12 +9,16 @@
     "start": "pnpm --filter web start",
     "lint": "pnpm --recursive lint",
     "test": "pnpm --recursive test",
+    "type-check": "pnpm --filter web type-check",
     "db:generate": "pnpm --filter db generate",
     "db:migrate": "pnpm --filter db migrate",
     "db:push": "pnpm --filter db push",
     "db:seed": "pnpm --filter db seed",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "deploy:preview": "vercel",
+    "deploy:prod": "vercel --prod",
+    "env:pull": "vercel env pull .env.local"
   },
   "workspaces": [
     "apps/*",
