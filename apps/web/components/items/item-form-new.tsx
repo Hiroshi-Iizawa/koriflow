@@ -158,9 +158,9 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
   }
 
   return (
-    <Card className="max-w-5xl mx-auto">
+    <Card className="max-w-5xl mx-auto border-kori-200 focus:outline-none focus-within:outline-none">
       <CardContent className="p-6 space-y-6">
-        <form onSubmit={handleSubmit(onFormSubmit)}>
+        <form onSubmit={handleSubmit(onFormSubmit)} className="focus-within:outline-none">
           
           {/* ① 基本情報 */}
           <Section 
@@ -241,11 +241,11 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
           </Section>
 
           {/* アコーディオンセクション */}
-          <Accordion type="multiple" defaultValue={['allergen']} className="space-y-4">
+          <Accordion type="multiple" defaultValue={['allergen']} className="space-y-4 focus:outline-none focus-within:outline-none">
             
             {/* ② 仕様 & 栄養 */}
-            <AccordionItem value="spec" className="border border-kori-200 rounded-lg">
-              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+            <AccordionItem value="spec" className="border border-kori-200 rounded-lg focus:outline-none">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline focus:outline-none">
                 <div className="flex items-center gap-2 text-kori-700 font-semibold">
                   <Package className="h-5 w-5 text-kori-600" />
                   商品仕様・栄養成分 (任意)
@@ -311,8 +311,8 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
             </AccordionItem>
 
             {/* ③ アレルゲン */}
-            <AccordionItem value="allergen" className="border border-kori-200 rounded-lg">
-              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+            <AccordionItem value="allergen" className="border border-kori-200 rounded-lg focus:outline-none">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline focus:outline-none">
                 <div className="flex items-center gap-2 text-kori-700 font-semibold">
                   <Shield className="h-5 w-5 text-kori-600" />
                   アレルゲン情報
@@ -324,8 +324,8 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
             </AccordionItem>
 
             {/* ④ 企業情報 */}
-            <AccordionItem value="company" className="border border-kori-200 rounded-lg">
-              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+            <AccordionItem value="company" className="border border-kori-200 rounded-lg focus:outline-none">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline focus:outline-none">
                 <div className="flex items-center gap-2 text-kori-700 font-semibold">
                   <Building2 className="h-5 w-5 text-kori-600" />
                   企業情報 (任意)
@@ -367,8 +367,8 @@ export function ItemFormNew({ item, onSubmit, onCancel, mode = 'create' }: ItemF
             </AccordionItem>
 
             {/* ⑤ 注意事項 */}
-            <AccordionItem value="notice" className="border border-kori-200 rounded-lg">
-              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+            <AccordionItem value="notice" className="border border-kori-200 rounded-lg focus:outline-none">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline focus:outline-none">
                 <div className="flex items-center gap-2 text-kori-700 font-semibold">
                   <FileText className="h-5 w-5 text-kori-600" />
                   その他
